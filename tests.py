@@ -1,5 +1,6 @@
 import pytest
 from hollow_heap import Element, HollowHeap
+import random
 
 def test_insert():
     a = HollowHeap()
@@ -59,14 +60,66 @@ def test_delete_min():
     a.insert(2)
 
     assert a.min_key() == 2
-
-    a.delete_min()
+    assert a.delete_min() == 2
 
     assert a.min_key() == 3
+    assert a.delete_min() == 3
+
+    assert a.min_key() == 4
+    assert a.delete_min() == 4
+
+    assert a.min_key() is None
+    assert a.delete_min() is None
+
+    assert a.min_key() is None
+
+def test_delete():
+    a = HollowHeap()
+
+    e = Element()
+    a.insert(3, e)
+    a.insert(2)
+
+    a.delete(e)
+    assert a.min_key() == 2
 
     a.delete_min()
 
-    assert a.min_key() == 4
+    assert a.min_key() is None
+
+def test_delete_multiple():
+    a = HollowHeap()
+
+    L = list(range(100))
+    for i in L:
+        a.insert(i)
+
+    S = [a.delete_min() for _ in range(100)]
+
+    assert S == list(sorted(L))
+
+def test_sort_list_reversed():
+    a = HollowHeap()
+
+    L = list(reversed(range(100)))
+    for i in L:
+        a.insert(i)
+
+    S = [a.delete_min() for _ in range(100)]
+
+    assert S == list(sorted(L))
+
+def test_sort_list_random():
+    a = HollowHeap()
+
+    L = list(range(100))
+    random.shuffle(L)
+    for i in L:
+        a.insert(i)
+
+    S = [a.delete_min() for _ in range(100)]
+
+    assert S == list(sorted(L))
 
 def test_meld():
     a = HollowHeap()
@@ -78,7 +131,7 @@ def test_meld():
     assert a.min_key() == 4
     assert b.min_key() == 3
 
-    a.meld(b.h)
+    a.h = HollowHeap.meld(b.h, a.h)
 
     assert a.min_key() == 3
     assert b.min_key() == 3
@@ -92,7 +145,7 @@ def test_meld():
     assert a.min_key() == 4
     assert b.min_key() == 3
 
-    b.meld(a.h)
+    b.h = HollowHeap.meld(b.h, a.h)
 
     assert a.min_key() == 4
     assert b.min_key() == 3
@@ -111,3 +164,20 @@ def test_decrease_key():
     a.decrease_key(a.find_min(), 0)
 
     assert a.min_key() == 0
+
+def test_element_data():
+    a = HollowHeap()
+
+    e = Element([1,2,3])
+
+    a.insert(3, e)
+
+    assert a.find_min().data == [1,2,3]
+
+    a.insert(2)
+
+    assert a.find_min().data != [1,2,3]
+
+    a.delete_min()
+
+    assert a.find_min().data == [1,2,3]

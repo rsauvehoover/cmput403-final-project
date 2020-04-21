@@ -1,0 +1,118 @@
+\documentclass[10pt]{article}
+% set margin
+\usepackage[margin=1.75cm]{geometry}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[LE,RO]{CMPUT 403 Final Project - Hollow Heaps}
+\fancyhead[RE,LO]{R. Frederic Sauve-Hoover}
+
+% ams packages
+\usepackage{amsmath}
+\usepackage{amsthm} 
+\usepackage{mathtools}
+\usepackage{amssymb} 
+\usepackage{mathrsfs}
+% fitch style proofs
+%\usepackage{fitch}
+% some font thing
+\usepackage{color} 
+\usepackage{txfonts} 
+\usepackage{scrextend} 
+% circuit package
+\usepackage{circuitikz} 
+\usepackage{subcaption}
+
+\usepackage{listings}
+
+\usepackage{booktabs} % for "\midrule" macro
+
+\usepackage[shortlabels]{enumitem}
+
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+
+\newcommand{\notimplies}{%
+  \mathrel{{\ooalign{\hidewidth$\not\phantom{=}$\hidewidth\cr$\implies$}}}}
+
+\usepackage{pgf}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+\usepackage{dot2texi}
+% TODO REMEMBER TO PUT -shell-escape flag in pdflatex
+% w !pdflatex -shell-escape %
+% actually just go <C-C><C-C> in my vim
+
+\begin{document}
+
+\title{Hollow Heaps}
+\author{R. Frederic Sauve-Hoover}
+\maketitle
+
+\section*{Description}
+I implement two-parent hollow heaps as described in \cite{hansen2015hollow} as a python package. Hollow heaps are a heap implementation with 
+improved complexity compared to more typical priority queues (heapq in python) on par with fibonacci heaps. However, hollow heaps are significantly simpler to implement than fibonacci heaps.\\
+
+The goal of this is to be able to provide an importable python library containing an implementation of a fast heap and to get some idea of how well it compares to existing python libraries.\\
+
+\section*{Time Bounds}
+Using the two-parent hollow heap implementation, we have all usual operations: \emph{insert}, \emph{find\_min}, \emph{meld}, etc. taking $O(1)$ time worst-case, except for \emph{delete} which takes $O(1)$ per hollow node losing a parent and per link being added, as well as $O(logN)$, where $N$ is how many nodes we have in our dag prior to the \emph{delete} or \emph{delete\_min} operation being done (\emph{delete} and \emph{delete\_min} are trivially equivalent in time bounds since \emph{find\_min} is $O(1)$). The more exact proofs for the time bounds are in the paper and go into significantly more detail than I am in this brief overview.\\
+
+For operations such as \emph{find\_min} we can trivially see that they're $O(1)$ since they're simply looking acessing attributes of our root. For \emph{insert} and \emph{meld} it's less obvious, but 
+we're simply linking the new node to our root, which is clearly $O(1)$, with the ranking and re-ordering being left until the \emph{delete} operation.
+
+\section*{Resources}
+I follow the algorithm provided in \cite{hansen2015hollow}, which provides much of the basis for my code.
+
+\section*{Instructions}
+To use the package, import \textbf{hollow\_heap} as shown in the snippet below
+
+\begin{lstlisting}[language=Python]
+# Element is used if you want to store additional data alongside the
+# key
+from hollow_heap import HollowHeap, Element
+
+heap = HollowHeap()
+e = Element([1,2,3]) # a simple element containing a list
+heap.insert(1, e)
+
+# an insertion that doesn't use an element object
+heap.insert(5)
+\end{lstlisting}
+
+There aren't any required libraries to install to use \textbf{hollow\_heap}, however to run tests and benchmarks, run \emph{pip install -r requirements.txt}\\
+
+To run the tests, run \emph{pytest tests.py}\\
+
+To run the benchmark, run \emph{python benchmark.py}\\
+
+\section*{Assumptions}
+There are a few assumptions, mostly to do with the usage of the library. These are things I may improve some other time.\\
+\begin{itemize}
+    \item inserts must be keys that are not already present in the heap
+    \item meld will only be called on heaps with distinct items
+    \item decrease\_key is only called on items with a key > k
+    \item delete is only called on an item that exists in the heap
+\end{itemize}
+
+\section*{Files in directory}
+\begin{itemize}
+    \item \textbf{hollow\_heap.py}
+        The hollow heap library, import the usual python way
+    \item \textbf{tests.py}
+        unit tests for the hollow heap library, run with \emph{pytest tests.py}
+    %\item \textbf{dijkstras.py}
+        %Two Dijkstra's algorithm implementations using heapq and hollow heaps, to test the difference in performance on dense graphs
+    \item \textbf{benchmark.py}
+        The benchmarking code, times execution of various sorts comparing heapq, hollow heaps, and builtin sort. Interestingly enough I wasn't even close to the speeds given by heapq and sort (sort isn't surprising at all, it's super optimized), and this is likely in no small part due to implementations of standard python libraries being mostly underlying c code, as well as an implementation bug present in my hollow heaps that I haven't quite narrowed down yet.
+
+\end{itemize}
+
+\section*{Output of program}
+
+\bibliography{ref}{}
+\bibliographystyle{apalike}
+
+\end{document}
