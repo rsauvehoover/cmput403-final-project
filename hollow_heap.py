@@ -61,7 +61,7 @@ class HollowHeap:
             v.rank = u.rank - 2
         v.child = u
         u.ep = v
-        self.h = _HollowHeapNode._link(self.hm, v)
+        self.h = _HollowHeapNode._link(self.h, v)
 
     def delete(self, e):
         """

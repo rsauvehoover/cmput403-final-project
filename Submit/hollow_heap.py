@@ -6,8 +6,9 @@ class HollowHeap:
     def __init__(self):
         # Full roots 
         self.A = {}
+        # our root node
         self.h = None
-        self.max_rank = None
+        self.max_rank = 0
 
     def find_min(self):
         """find item with minimum key in h
@@ -23,7 +24,7 @@ class HollowHeap:
         :return: the heap with e added"""
         if e is None:
             e = Element()
-        self.meld(_HollowHeapNode(e, k))
+        self.h = HollowHeap.meld(_HollowHeapNode(e, k), self.h)
         return self.h
 
     def delete_min(self):
@@ -36,16 +37,15 @@ class HollowHeap:
             self.delete(self.h.item)
         return val
 
-    def meld(self, g):
+    def meld(h, g):
         """
         melds g into self.h, where g and self.h have distinct keys
         """
         if g is None: 
-            return
-        if self.h is None: 
-            self.h = g
-            return 
-        self.h = _HollowHeapNode._link(self.h, g)
+            return h
+        if h is None: 
+            return g
+        return _HollowHeapNode._link(h, g)
 
     def decrease_key(self, e, k):
         """
@@ -61,23 +61,25 @@ class HollowHeap:
             v.rank = u.rank - 2
         v.child = u
         u.ep = v
-        self.h = _HollowHeapNode._link(self.hm, v)
+        self.h = _HollowHeapNode._link(self.h, v)
 
     def delete(self, e):
         """
         delete e from heap h
         """
+        # set the element to be hollow
         e.node.item = None
         e.node = None
+
+        # we need to reset A and max_rank
+        self.max_rank = 0
+        self.A = {}
 
         # if we're deleting something other than our min, then we don't need
         # to do anything else
         if self.h is not None and self.h.item is not None:
             return
 
-        # we need to reset A and max_rank
-        self.max_rank = 0
-        self.A = {}
         while self.h is not None:
             w = self.h.child
             v = self.h
@@ -99,6 +101,10 @@ class HollowHeap:
                 else:
                     self._do_ranked_links(u)
         self._do_unranked_links()
+        #  we need to reset the next on the root
+        if self.h is not None:
+            self.h.next = None
+
     
     def _do_ranked_links(self, u):
         """

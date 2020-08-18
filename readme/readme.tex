@@ -60,7 +60,7 @@ The goal of this is to be able to provide an importable python library containin
 \section*{Time Bounds}
 Using the two-parent hollow heap implementation, we have all usual operations: \emph{insert}, \emph{find\_min}, \emph{meld}, etc. taking $O(1)$ time worst-case, except for \emph{delete} which takes $O(1)$ per hollow node losing a parent and per link being added, as well as $O(logN)$, where $N$ is how many nodes we have in our dag prior to the \emph{delete} or \emph{delete\_min} operation being done (\emph{delete} and \emph{delete\_min} are trivially equivalent in time bounds since \emph{find\_min} is $O(1)$). The more exact proofs for the time bounds are in the paper and go into significantly more detail than I am in this brief overview.\\
 
-For operations such as \emph{find\_min} we can trivially see that they're $O(1)$ since they're simply looking acessing attributes of our root. For \emph{insert} and \emph{meld} it's less obvious, but 
+For operations such as \emph{find\_min} we can trivially see that they're $O(1)$ since they're simply acessing attributes of our root. For \emph{insert} and \emph{meld} it's less obvious, but 
 we're simply linking the new node to our root, which is clearly $O(1)$, with the ranking and re-ordering being left until the \emph{delete} operation.
 
 \section*{Resources}
@@ -76,13 +76,20 @@ from hollow_heap import HollowHeap, Element
 
 heap = HollowHeap()
 e = Element([1,2,3]) # a simple element containing a list
-heap.insert(1, e)
+heap.insert(4, e)
 
 # an insertion that doesn't use an element object
 heap.insert(5)
+
+# delete_min
+heap.delete_min()
+
+# to do a delete, or decrease_key operation on an element, you must have the element initialized somewhere
+heap.decrease_key(e, 1)
+heap.delete(e)
 \end{lstlisting}
 
-There aren't any required libraries to install to use \textbf{hollow\_heap}, however to run tests and benchmarks, run \emph{pip install -r requirements.txt}\\
+There aren't any required libraries to install to use \textbf{hollow\_heap}, pytest is however required to run \textbf{sorting}, to do so run \emph{pip install pytest}\\
 
 To run the tests, run \emph{pytest tests.py}\\
 
@@ -98,19 +105,30 @@ There are a few assumptions, mostly to do with the usage of the library. These a
 \end{itemize}
 
 \section*{Files in directory}
+Here are the various files in the directory and a short explanation of each
 \begin{itemize}
     \item \textbf{hollow\_heap.py}
         The hollow heap library, import the usual python way
     \item \textbf{tests.py}
         unit tests for the hollow heap library, run with \emph{pytest tests.py}
-    %\item \textbf{dijkstras.py}
-        %Two Dijkstra's algorithm implementations using heapq and hollow heaps, to test the difference in performance on dense graphs
-    \item \textbf{benchmark.py}
-        The benchmarking code, times execution of various sorts comparing heapq, hollow heaps, and builtin sort. Interestingly enough I wasn't even close to the speeds given by heapq and sort (sort isn't surprising at all, it's super optimized), and this is likely in no small part due to implementations of standard python libraries being mostly underlying c code, as well as an implementation bug present in my hollow heaps that I haven't quite narrowed down yet.
+    \item \textbf{dijkstras.py}
+        Two Dijkstra's algorithm implementations using heapq and hollow heaps, to test the difference in performance on dense graphs.\\
+        With hollow heaps, we get a $O(|E|+|V|\log |V|)$ time bound vs the usual $O(|E|\log |E|)$, so we should expect to see the hollow heap implementation perform roughly the same as the heapq implementation on sparse graphs, and improve the denser the graph\\
+        In my test on a path graph, we see the heap implementation significantly outperform the hollow heap implementation, which is not surprising since \emph{decrease\_key} will never be used on a path, and for the random sparse graph, we see both algorithms performing roughly the same, which is also to be expected. Also as expected, but still fairly interesting to note, is that on denser graphs we see the hollow heap implementation performing significantly better (~4-5x as fast), which is due to \emph{decrease\_key} being a $O(1)$ operation.\\
+        NOTE: The graph generation can take a little while when NUM\_NODES is high for the dense graphs (usually <1min)\\
+    \item \textbf{sorting.py}
+        Sorting benchmarks, times execution of various sorts comparing heapq, hollow heaps, and builtin sort. Interestingly enough I wasn't able to even match the speeds given by heapq and sort (sort isn't surprising), and this is likely in no small part due to implementations of standard python libraries being mostly underlying c code, and some inefficiencies likely present in my code. However, even with optimizations I wouldn't expect hollow heaps to outperform heapq by much if at all, since heapsort does one insertion for every deletion (so the asymptotic bounds don't change between hollow heaps and heapq) and doesn't rely on decrease-key which is the particularly significant improvement hollow heaps bring.
+    \item \textbf{graph.py}
+        The graph library from cpmut 275. Used for Dijkstra's implementation for convenience
 
 \end{itemize}
 
 \section*{Output of program}
+\textbf{hollow\_heap.py} has no output since it's just library code\\
+\textbf{tests.py} is typical pytest output, if a test fails it will output where the failure occurs, otherwise it'll output how many tests were passed and how long it took\\
+\textbf{sorting.py} outputs the sorting benchmark being done, and the time taken by each algorithm\\
+\textbf{dijkstras.py} outputs the type of graph dijkstras is being run on and the time taken by each algorithm\\
+
 
 \bibliography{ref}{}
 \bibliographystyle{apalike}

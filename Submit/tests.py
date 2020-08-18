@@ -1,5 +1,6 @@
 import pytest
 from hollow_heap import Element, HollowHeap
+import random
 
 def test_insert():
     a = HollowHeap()
@@ -86,6 +87,40 @@ def test_delete():
 
     assert a.min_key() is None
 
+def test_delete_multiple():
+    a = HollowHeap()
+
+    L = list(range(100))
+    for i in L:
+        a.insert(i)
+
+    S = [a.delete_min() for _ in range(100)]
+
+    assert S == list(sorted(L))
+
+def test_sort_list_reversed():
+    a = HollowHeap()
+
+    L = list(reversed(range(100)))
+    for i in L:
+        a.insert(i)
+
+    S = [a.delete_min() for _ in range(100)]
+
+    assert S == list(sorted(L))
+
+def test_sort_list_random():
+    a = HollowHeap()
+
+    L = list(range(100))
+    random.shuffle(L)
+    for i in L:
+        a.insert(i)
+
+    S = [a.delete_min() for _ in range(100)]
+
+    assert S == list(sorted(L))
+
 def test_meld():
     a = HollowHeap()
     b = HollowHeap()
@@ -96,7 +131,7 @@ def test_meld():
     assert a.min_key() == 4
     assert b.min_key() == 3
 
-    a.meld(b.h)
+    a.h = HollowHeap.meld(b.h, a.h)
 
     assert a.min_key() == 3
     assert b.min_key() == 3
@@ -110,7 +145,7 @@ def test_meld():
     assert a.min_key() == 4
     assert b.min_key() == 3
 
-    b.meld(a.h)
+    b.h = HollowHeap.meld(b.h, a.h)
 
     assert a.min_key() == 4
     assert b.min_key() == 3

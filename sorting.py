@@ -1,13 +1,12 @@
 from hollow_heap import Element, HollowHeap
 import random
-from tqdm import tqdm
 import copy
 
 import time
 
 import heapq
 
-LENGTH = 100
+LENGTH = 100000
 
 def heapsort_hollow(A):
     h = HollowHeap()
@@ -49,3 +48,11 @@ random.shuffle(L_randomized)
 print("Hollow heap completed in {}s".format(time_sort(heapsort_hollow, L_randomized)))
 print("heapq completed in {}s".format(time_sort(heapsort_heapq, L_randomized)))
 print("builtin sort completed in {}s".format(time_sort(sorted, L_randomized)))
+
+
+print('~'*60)
+print("Already Sorted")
+
+print("Hollow heap completed in {}s".format(time_sort(heapsort_hollow, L)))
+print("heapq completed in {}s".format(time_sort(heapsort_heapq, L)))
+print("builtin sort completed in {}s".format(time_sort(sorted, L)))
